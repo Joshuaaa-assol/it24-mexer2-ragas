@@ -1,66 +1,74 @@
-const button = document.getElementById("loadBtn");
-const userList = document.getElementById("userList");
-const postbutton = document.getElementById("loadPost");
 
-button.addEventListener("click", getUsers);
-button.addEventListener("click", createPost);
+const userList = document.getElementById("userList");
+const button = document.getElementById("loadUsers");
+const postbutton = document.getElementById("loadPosts");
 
 async function getUsers() {
-  userList.textContent = "Loading users...";
-  try {
-    const response = await fetch("https://jsonplaceholder.typicode.com/users");
-    if (!response.ok) {
-      throw new Error("Failed to retrieve users");
+    try {
+        userList.innerHTML = "<p>Loading users...</p>";
+
+        const response = await fetch(
+            "https://jsonplaceholder.typicode.com/users"
+        );
+
+        if (!response.ok) {
+            throw new Error("Failed to load users.");
+        }
+
+        const users = await response.json();
+
+        userList.innerHTML = "";
+
+        users.forEach(user => {
+            const card = document.createElement("div");
+            card.className = "user-card";
+
+            card.innerHTML = `
+                <h3>${user.name}</h3>
+                <p>Email: ${user.email}</p>
+                <p>Username: ${user.username}</p>
+            `;
+
+            userList.appendChild(card);
+        });
+    } catch (error) {
+        userList.innerHTML =
+            `<p>Error: ${error.message}</p>`;
     }
-    const users = await response.json();
-
-    userList.innerHTML = "";
-    users.forEach(function (user) {
-      const card = document.createElement("div");
-      card.className = "user-card";
-
-      const name = document.createElement("h3");
-      name.textContent = user.name;
-
-      const email = document.createElement("p");
-      email.textContent = user.email;
-
-      const city = document.createElement("p");
-      city.textContent = user.address.city;
-
-      const phone = document.createElement("p");
-      phone.textContent = user.phone;
-
-      const lat = document.createElement("p");
-      lat.textContent = user.address.geo.lat;
-
-      const catchPhrase = document.createElement("p");
-      catchPhrase.textContent = user.company.catchPhrase;
-
-      const website = document.createElement("p");
-      website.textContent = user.website;
-
-      card.append(name, email, city, phone, lat, catchPhrase, website);
-      userList.appendChild(card);
-    });
-    console.log(users);
-  } catch (error) {
-    userList.textContent = "Error: " + error.message;
-  }
 }
 
-async function createPost() {
-  const response = await fetch("https://jsonplaceholder.typicode.com/posts", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
+async function loadPost() {
+    try {
+        userList.innerHTML = "<p>Loading posts...</p>";
 
-    body: JSON.stringify({
-      title: "My First API Post",
-      body: "Learning API Integration",
-      userId: 1,
-    }),
-  });
-  if (!response.ok) throw new Error("POST failed");
-  console.log(await response.json());
+        const response = await fetch(
+            "https://jsonplaceholder.typicode.com/posts"
+        );
+
+        if (!response.ok) {
+            throw new Error("Failed to load posts.");
+        }
+
+        const posts = await response.json();
+
+        userList.innerHTML = "";
+
+        posts.slice(0, 10).forEach(post => {
+            const card = document.createElement("div");
+            card.className = "user-card";
+
+            card.innerHTML = `
+                <h3>${post.title}</h3>
+                <p>${post.body}</p>
+            `;
+
+            userList.appendChild(card);
+        });
+    } catch (error) {
+        userList.innerHTML =
+            `<p>Error loading posts: ${error.message}</p>`;
+    }
 }
-createPost().catch(console.error);
+
+button.addEventListener("click", getUsers);
+postbutton.addEventListener("click", loadPost);
